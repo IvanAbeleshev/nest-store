@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { GoogleOauthGuard } from './guards/google-oauth/google-oauth.guard';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { CredentialSigninDTO } from './dto/credential-sign-in.dto';
 import { CreateUserDTO } from 'src/user/dto/create-user.dto';
+import { RefreshTokenGuard } from './guards/refresh-jwt/refresh-jwt.guard';
+import { IAuthPayload } from 'src/interfaces';
 
 @Controller('auth')
 export class AuthController {
@@ -32,5 +34,16 @@ export class AuthController {
   @Post('signUp')
   signUp(@Body() createUser: CreateUserDTO) {
     return this.authService.signUp(createUser)
+  }
+
+  @Get('refresh')
+  @UseGuards(RefreshTokenGuard)
+  refresh(@Req() req){
+    return this.authService.getTokens({
+      email: req.user.email,
+      id: req.user.id,
+      role: req.user.role
+    })
+
   }
 }

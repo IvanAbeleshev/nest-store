@@ -18,13 +18,22 @@ export class AuthService {
 
   getTokens(payload: IAuthPayload){
     return ({
-      access_token: this.generateJWT(payload)
+      access_token: this.generateJWT(payload),
+      refresh_tokern: this.generateRefreshJWT(payload)
     })
   }
+
   generateJWT(payload: IAuthPayload){
     return this.jwtService.sign(payload, {
       secret: this.configService.get('jwt.key'),
       expiresIn: '15m'
+    })
+  }
+
+  generateRefreshJWT(payload: IAuthPayload){
+    return this.jwtService.sign(payload, {
+      secret: this.configService.get('jwt.refresh'),
+      expiresIn: '30d'
     })
   }
 
@@ -98,5 +107,7 @@ export class AuthService {
       role: userCandidat.role
     })
   }
+
+  
 
 }

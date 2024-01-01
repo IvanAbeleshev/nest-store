@@ -6,6 +6,7 @@ export default () => ({
     callbackURL: process.env.callbackURL,
   },
   jwt:{
-    key: process.env.jwtKey
+    key: process.env.jwtKey,
+    refresh: process.env.jwtRefresh
   }
 })

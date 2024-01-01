@@ -6,6 +6,7 @@ declare global {
       callbackURL: string,
 
       jwtKey: string,
+      jwtRefresh: string,
 
       DATABASE_URL: string,
     }
