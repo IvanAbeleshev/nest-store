@@ -19,7 +19,7 @@ export class AuthService {
   getTokens(payload: IAuthPayload){
     return ({
       access_token: this.generateJWT(payload),
-      refresh_tokern: this.generateRefreshJWT(payload)
+      refresh_token: this.generateRefreshJWT(payload)
     })
   }
 
@@ -67,7 +67,7 @@ export class AuthService {
   async signIn( loginData: CredentialSigninDTO ) {
     const candidat = await this.userService.findUserByEmail(loginData.login)
     if(!candidat){
-      throw new UnauthorizedException('User does ot exist')
+      throw new UnauthorizedException('User does not exist')
     }
 
     const verifiedPassword = await argon2.verify(candidat.password, loginData.password)
@@ -107,7 +107,5 @@ export class AuthService {
       role: userCandidat.role
     })
   }
-
-  
 
 }

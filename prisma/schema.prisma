@@ -22,3 +22,44 @@ enum Role {
   USER
   ADMIN
 }
+
+model Language{
+  shortName String @id
+  fullName String
+  productInternalization ProductInternalization[]
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  UID String 
+  article String?
+
+
+  translations ProductInternalization[]
+  priceAndDiscount ProductPriceAndDiscount?
+  availableAmount ProductAvailableAmout?
+}
+
+model ProductInternalization{
+  id Int @id @default(autoincrement())
+  name String
+  fullName String
+  description String?
+  product Product @relation(fields: [producId], references: [id])
+  producId Int
+  language Language @relation(fields: [languageShortName], references: [shortName])
+  languageShortName String
+}
+
+model ProductPriceAndDiscount{
+  productId Int @unique @id
+  price Float
+  discount Float?
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model ProductAvailableAmout{
+  productId Int @unique @id
+  product Product @relation(fields: [productId], references: [id])
+  amout Float?
+}

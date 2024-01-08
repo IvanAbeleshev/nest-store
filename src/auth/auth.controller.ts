@@ -5,12 +5,15 @@ import { Response } from 'express';
 import { CredentialSigninDTO } from './dto/credential-sign-in.dto';
 import { CreateUserDTO } from 'src/user/dto/create-user.dto';
 import { RefreshTokenGuard } from './guards/refresh-jwt/refresh-jwt.guard';
-import { IAuthPayload } from 'src/interfaces';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
 
-  constructor(private authService:AuthService) {}
+  constructor(
+    private authService:AuthService, 
+    private configService:ConfigService
+  ) {}
 
   @Get('google')
   @UseGuards(GoogleOauthGuard)
@@ -23,7 +26,8 @@ export class AuthController {
     const tokens = await this.authService.signInGoogle(req.user);
     // maybe i will generate own token and add to cookie
     res.cookie('access_token', tokens.access_token)
-    return res.redirect('http://localhost:3000/uk')
+    res.cookie('refresh_token', tokens.refresh_token)
+    return res.redirect(this.configService.get('redirectURL'))
   }
 
   @Post('signin')

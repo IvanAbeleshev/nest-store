@@ -9,6 +9,8 @@ declare global {
       jwtRefresh: string,
 
       DATABASE_URL: string,
+      
+      redirectURL: string
     }
   }
 }
