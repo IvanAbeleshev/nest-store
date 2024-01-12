@@ -38,6 +38,7 @@ model Product {
   translations ProductInternalization[]
   priceAndDiscount ProductPriceAndDiscount?
   availableAmount ProductAvailableAmout?
+  images ProductImages[]
 }
 
 model ProductInternalization{
@@ -45,8 +46,8 @@ model ProductInternalization{
   name String
   fullName String
   description String?
-  product Product @relation(fields: [producId], references: [id])
-  producId Int
+  product Product @relation(fields: [productId], references: [id])
+  productId Int
   language Language @relation(fields: [languageShortName], references: [shortName])
   languageShortName String
 }
@@ -61,5 +62,13 @@ model ProductPriceAndDiscount{
 model ProductAvailableAmout{
   productId Int @unique @id
   product Product @relation(fields: [productId], references: [id])
-  amout Float?
+  amount Float?
+  updatedAt DateTime @updatedAt
+}
+
+model ProductImages{
+  id Int @id @default(autoincrement())
+  imgPath String
+  productId Int
+  product Product @relation(fields: [productId], references: [id])
 }
