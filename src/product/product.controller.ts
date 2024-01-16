@@ -13,6 +13,7 @@ import { PriceService } from './price/price.service';
 import { UpdateProductDescriptionDTO } from './description/dto/update-description.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer'
+import { productImageMulterOption } from 'constants/fileConfig';
 
 @Controller('product')
 export class ProductController {
@@ -68,15 +69,10 @@ export class ProductController {
     return res.json(product)
   }
 
-  @Post()
+  @Post('addImage/:id')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
-  @UseInterceptors(FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './media/uploads/',
-      }),
-    }
-  ))
+  @UseInterceptors(FileInterceptor('file', productImageMulterOption))
   async uploadProductFile(@UploadedFile() file: Express.Multer.File){
     console.log(file)
   }
