@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DescriptionService } from './description/description.service';
@@ -15,6 +15,29 @@ export class ProductService {
     private amountService:AmountService,
   ){}
 
+  async findProduct(idOrUID:string):Promise<number>{
+    let id = null
+    try{
+      id = Number(idOrUID)
+    }catch(error){
+
+    }
+    const product = await this.prisma.product.findFirst({
+      where:{
+        OR:[
+          {id},
+          {UID: idOrUID}
+        ]
+      }
+    })
+
+    if(!product){
+      throw new BadRequestException('product does not exist')
+    }
+    
+    return product.id
+  }
+
   async createProduct( productData:CreateProductDTO ){
     const product = await this.prisma.product.create({
       data:{
@@ -30,12 +53,12 @@ export class ProductService {
 
     //set product price
     if(productData.price){
-      this.priceService.create(productData.price, product.id)
+      this.priceService.set(productData.price, product.id)
     }
 
     //add available amount
     if(productData.amount){
-      this.amountService.create(productData.amount, product.id)
+      this.amountService.set(productData.amount, product.id)
     }
     
     return product

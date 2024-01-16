@@ -7,12 +7,19 @@ export class PriceService {
 
   constructor(private prisma:PrismaService){}
 
-  async create(priceData:CreateProductPriceDTO, productId:number){
-    const price = await this.prisma.productPriceAndDiscount.create({
-      data:{
+  async set(priceData:CreateProductPriceDTO, productId:number){
+    const price = await this.prisma.productPriceAndDiscount.upsert({
+      create:{
         ...priceData,
         productId
+      },
+      update:{
+        ...priceData,
+      },
+      where:{
+        productId
       }
+
     })
 
     return price

@@ -7,10 +7,16 @@ export class AmountService {
 
   constructor(private prisma:PrismaService){}
 
-  async create(amountDTO: CreateProductAmountDTO, productId:number){
-    const price = await this.prisma.productAvailableAmout.create({
-      data:{
+  async set(amountDTO: CreateProductAmountDTO, productId:number){
+    const price = await this.prisma.productAvailableAmout.upsert({
+      create:{
         ...amountDTO,
+        productId
+      },
+      update:{
+        ...amountDTO,
+      },
+      where:{
         productId
       }
     })
