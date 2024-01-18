@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Param, Post, Put, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Put, Res, StreamableFile, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { Response } from 'express';
 import { ProductService } from './product.service';
@@ -12,8 +12,10 @@ import { CreateProductPriceDTO } from './price/dto/create-price.dto';
 import { PriceService } from './price/price.service';
 import { UpdateProductDescriptionDTO } from './description/dto/update-description.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer'
-import { productImageMulterOption } from 'constants/fileConfig';
+import { productImageMulterOption } from 'src/config/fileConfig';
+import { ImagesService } from './images/images.service';
+import { createReadStream } from 'fs';
+import { join } from 'path';
 
 @Controller('product')
 export class ProductController {
@@ -22,7 +24,8 @@ export class ProductController {
     private productService:ProductService,
     private productDescriptionService:DescriptionService,
     private productAmountService:AmountService,
-    private productPriceService:PriceService
+    private productPriceService:PriceService,
+    private productImages:ImagesService
   ){}
 
   @Post('addInternalization/:id')
@@ -73,7 +76,29 @@ export class ProductController {
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   @UseInterceptors(FileInterceptor('file', productImageMulterOption))
-  async uploadProductFile(@UploadedFile() file: Express.Multer.File){
-    console.log(file)
+  async uploadProductFile(
+    @UploadedFile() file: Express.Multer.File, 
+    @Param('id') id: string, 
+    @Res() res: Response)
+  {
+    const productId = await this.productService.findProduct(id)
+    const productImage = await this.productImages.addImage({
+      imgPath: file.path,
+      originalName: file.originalname,
+    }, productId)
+    return res.json(productImage)
   }
+
+
+  @Get('img/:filename')
+  async getProductImage(@Param('filename') filepath: string, @Res({ passthrough: true }) res: Response):Promise<StreamableFile>{
+    const file = createReadStream(join(process.cwd(), filepath));
+    const originFileName = await this.productImages.getOriginalName(filepath)
+    res.set({
+      'Content-Type': 'application/json',
+      'Content-Disposition': `attachment; filename="${originFileName}"`,
+    })
+    return new StreamableFile(file);
+  }
+
 }
