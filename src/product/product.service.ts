@@ -15,7 +15,7 @@ export class ProductService {
     private amountService:AmountService,
   ){}
 
-  async findProduct(idOrUID:string):Promise<number>{
+  async find(idOrUID:string):Promise<number>{
     let id = null
     try{
       id = Number(idOrUID)
@@ -38,7 +38,7 @@ export class ProductService {
     return product.id
   }
 
-  async createProduct( productData:CreateProductDTO ){
+  async create( productData:CreateProductDTO ){
     const product = await this.prisma.product.create({
       data:{
         UID: productData.UID,
@@ -62,5 +62,38 @@ export class ProductService {
     }
     
     return product
+  }
+
+  async getList(page:number = 1, pageSize:number = 10){
+    const skip = (page - 1) * pageSize
+    const [data, count] = await Promise.all(
+      [
+        this.prisma.product.findMany({
+          include:{
+            translations:{
+              where: {
+                languageShortName: 'ru', //test data will pass in cookie
+              }
+            },
+            availableAmount:{},
+            priceAndDiscount:{},
+            images:{}
+          },
+          skip,
+          take: pageSize
+        }),
+        this.prisma.product.count()
+      ]
+    )
+    
+
+    return {
+      data,
+      pagination:{
+        totalCount: count,
+        totalPages: Math.ceil(count / pageSize),
+        currentPage: page
+      }
+    }
   }
 }
