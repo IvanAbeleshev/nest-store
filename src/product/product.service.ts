@@ -42,7 +42,7 @@ export class ProductService {
     const product = await this.prisma.product.create({
       data:{
         UID: productData.UID,
-        article: productData.article
+        article: productData.article,
       }
     })
 

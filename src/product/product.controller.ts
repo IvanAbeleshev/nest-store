@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put, Query, Res, StreamableFile, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put, Query, Req, Res, StreamableFile, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { Response } from 'express';
 import { ProductService } from './product.service';
@@ -102,13 +102,17 @@ export class ProductController {
     return new StreamableFile(file);
   }
 
+  //maybe will post type request for pass filter params 
   @Get()
   @HttpCode(HttpStatus.CREATED)
   async getProductList(
+    @Req() req: Request,
     @Res() res: Response,
     @Query('page') page?:string,
     @Query('pageSize') pageSize?:string
   ){
+    //@ts-ignore
+    // console.log(req.cookies)
     let parsedPage = parseInt(page)
     parsedPage = (isNaN(parsedPage) ? 1 : parsedPage)
     

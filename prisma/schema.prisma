@@ -27,6 +27,7 @@ model Language{
   shortName String @id
   fullName String
   productInternalization ProductInternalization[]
+  productCategoryInternalization ProductCategoryInternalization[]
 }
 
 model Product {
@@ -39,6 +40,7 @@ model Product {
   priceAndDiscount ProductPriceAndDiscount?
   availableAmount ProductAvailableAmout?
   images ProductImages[]
+  categories ProductsInCategory[]
 }
 
 model ProductInternalization{
@@ -72,4 +74,35 @@ model ProductImages{
   originalName String
   productId Int
   product Product @relation(fields: [productId], references: [id])
+}
+
+model ProductCategory{
+  id Int @id @default(autoincrement())
+  UID String
+  imgPath String?
+  originalName String?
+  
+  translations ProductCategoryInternalization[]
+  products ProductsInCategory[]
+}
+
+model ProductCategoryInternalization{
+  id Int @id @default(autoincrement())
+  title String
+  description String?
+  productCategory ProductCategory @relation(fields: [productCategoryId], references: [id])
+  productCategoryId Int
+  language Language @relation(fields: [languageShortName], references: [shortName])
+  languageShortName String 
+
+  @@unique([productCategoryId, languageShortName])
+}
+
+model ProductsInCategory{
+  product Product @relation(fields: [productId], references: [id])
+  productId Int
+  category ProductCategory @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  @@id([productId, categoryId])
 }
