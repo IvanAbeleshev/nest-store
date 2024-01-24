@@ -20,12 +20,14 @@ export class CategoryService {
   }
 
   async createCategoryDescription(descriptionDTO: SetCategoryInternalizationDTO, categoryID:number){
-    const description = await this.prisma.productCategoryInternalization.createMany({
+    const description = await this.prisma.productCategoryInternalization.create({
       data:{
         ...descriptionDTO,
         productCategoryId: categoryID
       }
     })
+
+    return description
   }
 
   async create(categoryDTO: CreateCategoryDTO){
@@ -63,5 +65,39 @@ export class CategoryService {
     }
     
     return product.id
+  }
+
+  async attachFile(categoryId:number, imgPath: string, originalName){
+    const attachedFile = await this.prisma.productCategory.update({
+      data:{
+        originalName,
+        imgPath
+      },
+      where:{
+        id: categoryId
+      }
+    })
+
+    return attachedFile
+  }
+
+  async getOriginalName(imgPath:string){
+    const img = await this.prisma.productCategory.findFirst({
+      where:{
+        imgPath
+      }
+    })
+
+    return img.originalName
+  }
+
+  async getList(){
+    const categoryList = await this.prisma.productCategory.findMany({
+      include:{
+        translations:{}
+      }
+    })
+
+    return categoryList
   }
 }

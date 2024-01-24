@@ -17,7 +17,8 @@ import { CategoryService } from './category/category.service';
     AmountService, 
     PriceService, 
     ImagesService, 
-    PrismaService, CategoryService,
+    PrismaService, 
+    CategoryService,
   ],
 })
 export class ProductModule {}
