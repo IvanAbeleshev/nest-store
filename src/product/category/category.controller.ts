@@ -7,8 +7,6 @@ import { SetCategoryInternalizationDTO } from './dto/set-category-internalizatio
 import { Response } from 'express';
 import { categoryImageMulterOption } from 'src/config/fileConfig';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { createReadStream } from 'fs';
-import { join } from 'path';
 
 @Controller('category')
 export class CategoryController {
@@ -19,6 +17,9 @@ export class CategoryController {
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async createProduct(@Body() body:CreateCategoryDTO, @Res() res: Response){
+    if(typeof body.parent === 'string'){
+      body.parent = await this.categoryService.find(body.parent)
+    }
     const category = await this.categoryService.create(body)
     return res.json(category)
   }
@@ -53,19 +54,6 @@ export class CategoryController {
       file.originalname)
     return res.json(categoryWithImg)
   }
-
-  @Get('img/:filename')
-  @HttpCode(HttpStatus.CREATED)
-  async getProductImage(@Param('filename') filepath: string, @Res({ passthrough: true }) res: Response):Promise<StreamableFile>{
-    const file = createReadStream(join(process.cwd(), filepath));
-    const originFileName = await this.categoryService.getOriginalName(filepath)
-    res.set({
-      'Content-Type': 'application/json',
-      'Content-Disposition': `attachment; filename="${originFileName}"`,
-    })
-    return new StreamableFile(file);
-  }
-
   @Get()
   @HttpCode(HttpStatus.CREATED)
   async getCategoryList(@Res() res: Response){

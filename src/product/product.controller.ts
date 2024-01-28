@@ -13,7 +13,7 @@ import { PriceService } from './price/price.service';
 import { UpdateProductDescriptionDTO } from './description/dto/update-description.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { productImageMulterOption } from 'src/config/fileConfig';
-import { ImagesService } from './images/images.service';
+import { ImagesService } from '../images/images.service';
 import { createReadStream } from 'fs';
 import { join } from 'path';
 
@@ -25,7 +25,7 @@ export class ProductController {
     private productDescriptionService:DescriptionService,
     private productAmountService:AmountService,
     private productPriceService:PriceService,
-    private productImages:ImagesService
+    private imagesService:ImagesService
   ){}
 
   @Post('addInternalization/:id')
@@ -82,25 +82,13 @@ export class ProductController {
     @Res() res: Response)
   {
     const productId = await this.productService.find(id)
-    const productImage = await this.productImages.addImage({
+    const productImage = await this.imagesService.addImage({
       imgPath: file.path,
       originalName: file.originalname,
-    }, productId)
+    }, { productId })
     return res.json(productImage)
   }
 
-
-  @Get('img/:filename')
-  @HttpCode(HttpStatus.CREATED)
-  async getProductImage(@Param('filename') filepath: string, @Res({ passthrough: true }) res: Response):Promise<StreamableFile>{
-    const file = createReadStream(join(process.cwd(), filepath));
-    const originFileName = await this.productImages.getOriginalName(filepath)
-    res.set({
-      'Content-Type': 'application/json',
-      'Content-Disposition': `attachment; filename="${originFileName}"`,
-    })
-    return new StreamableFile(file);
-  }
 
   //maybe will post type request for pass filter params 
   @Get()

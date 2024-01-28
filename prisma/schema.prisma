@@ -39,7 +39,7 @@ model Product {
   translations ProductInternalization[]
   priceAndDiscount ProductPriceAndDiscount?
   availableAmount ProductAvailableAmout?
-  images ProductImages[]
+  images Images[]
   categories ProductsInCategory[]
 }
 
@@ -68,22 +68,27 @@ model ProductAvailableAmout{
   updatedAt DateTime @updatedAt
 }
 
-model ProductImages{
+model Images{
   id Int @id @default(autoincrement())
   imgPath String
   originalName String
-  productId Int
-  product Product @relation(fields: [productId], references: [id])
+  productId Int?
+  product Product? @relation(fields: [productId], references: [id])
+  categoryId Int? @unique
+  productCategory ProductCategory? @relation(fields: [categoryId], references: [id])
 }
 
 model ProductCategory{
   id Int @id @default(autoincrement())
-  UID String
-  imgPath String?
-  originalName String?
+  UID String @unique
   
   translations ProductCategoryInternalization[]
   products ProductsInCategory[]
+  image Images?
+  
+  parentId Int?
+  parent ProductCategory? @relation("ParentChildren", fields: [parentId], references: [id])
+  children ProductCategory[] @relation("ParentChildren")
 }
 
 model ProductCategoryInternalization{

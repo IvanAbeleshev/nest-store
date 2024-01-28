@@ -31,11 +31,22 @@ export class CategoryService {
   }
 
   async create(categoryDTO: CreateCategoryDTO){
-    const category = await this.prisma.productCategory.create({
-      data:{
-        UID: categoryDTO.UID
-      }
-    })
+    let category
+    try{
+       category = await this.prisma.productCategory.create({
+        data:{
+          UID: categoryDTO.UID,
+          parent:{
+            connect: {
+              //@ts-ignore
+              id: categoryDTO.parent
+            }
+          }
+        }
+      })
+    }catch(error){
+      throw new BadRequestException(`Category with UID: ${categoryDTO.UID} already exist`)
+    }
 
     if(categoryDTO.descriptions){
       this.createCategoryDescriptions(categoryDTO.descriptions, category.id)
@@ -45,19 +56,19 @@ export class CategoryService {
   }
 
   async find(idOrUID:string):Promise<number>{
-    let id = null
-    try{
-      id = Number(idOrUID)
-    }catch(error){
-
-    }
-    const product = await this.prisma.productCategory.findFirst({
-      where:{
-        OR:[
-          {id},
-          {UID: idOrUID}
-        ]
+    let where
+    if(/^\d+$/.test(idOrUID)){
+      where = {
+        id: Number(idOrUID)
       }
+    }else{
+      where = {
+        UID: idOrUID
+      }
+    }
+
+    const product = await this.prisma.productCategory.findFirst({
+      where
     })
 
     if(!product){
@@ -67,34 +78,24 @@ export class CategoryService {
     return product.id
   }
 
-  async attachFile(categoryId:number, imgPath: string, originalName){
-    const attachedFile = await this.prisma.productCategory.update({
+  async attachFile(categoryId:number, imgPath: string, originalName:string){
+    const attachedFile = await this.prisma.images.create({
       data:{
+        imgPath,
         originalName,
-        imgPath
-      },
-      where:{
-        id: categoryId
+        categoryId
       }
     })
 
     return attachedFile
   }
 
-  async getOriginalName(imgPath:string){
-    const img = await this.prisma.productCategory.findFirst({
-      where:{
-        imgPath
-      }
-    })
-
-    return img.originalName
-  }
-
   async getList(){
     const categoryList = await this.prisma.productCategory.findMany({
       include:{
-        translations:{}
+        translations:{},
+        image:{},
+        parent:{}
       }
     })
 

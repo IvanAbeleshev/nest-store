@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer'
-import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator'
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator'
 import { SetCategoryInternalizationDTO } from './set-category-internalization.dto'
 
 export class CreateCategoryDTO{
@@ -12,4 +12,8 @@ export class CreateCategoryDTO{
   @ValidateNested({each: true})
   @Type(() => SetCategoryInternalizationDTO )
   descriptions?: SetCategoryInternalizationDTO[] | null = null
+
+  @IsOptional()
+  @IsString()
+  parent?: string | number | null = null
 }
