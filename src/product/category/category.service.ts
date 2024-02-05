@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCategoryDTO } from './dto/create-category.dto';
 import { SetCategoryInternalizationDTO } from './dto/set-category-internalization.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CategoryService {
@@ -33,14 +34,17 @@ export class CategoryService {
   async create(categoryDTO: CreateCategoryDTO){
     let category
     try{
+      let connect:Prisma.ProductCategoryWhereUniqueInput
+      if(categoryDTO.parent){
+        connect = {
+          id: Number(categoryDTO.parent)
+        }
+      }
        category = await this.prisma.productCategory.create({
         data:{
           UID: categoryDTO.UID,
           parent:{
-            connect: {
-              //@ts-ignore
-              id: categoryDTO.parent
-            }
+            connect
           }
         }
       })

@@ -4,15 +4,17 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { DescriptionService } from './description/description.service';
 import { PriceService } from './price/price.service';
 import { AmountService } from './amount/amount.service';
+import { CategoryService } from './category/category.service';
 
 @Injectable()
 export class ProductService {
 
   constructor(
-    private prisma:PrismaService,
-    private descriptionService:DescriptionService,
-    private priceService:PriceService,
-    private amountService:AmountService,
+    private prisma: PrismaService,
+    private descriptionService: DescriptionService,
+    private priceService: PriceService,
+    private amountService: AmountService,
+    private categoryService: CategoryService,
   ){}
 
   async find(idOrUID:string):Promise<number>{
